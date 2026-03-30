@@ -16,18 +16,20 @@ jobs:
           exit 1
 
       - name: Check PR title length
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
-          TITLE="${{ github.event.pull_request.title }}"
-          LENGTH=${#TITLE}
+          LENGTH=${#PR_TITLE}
           if [ "$LENGTH" -lt 10 ]; then
-            echo "::error::PR title is too short (minimum 10 characters). Got: \"$TITLE\""
+            echo "::error::PR title is too short (minimum 10 characters). Got: \"$PR_TITLE\""
             exit 1
           fi
 
       - name: Check PR description
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
         run: |
-          BODY="${{ github.event.pull_request.body }}"
-          STRIPPED=$(echo "$BODY" | tr -d '[:space:]')
+          STRIPPED=$(echo "$PR_BODY" | tr -d '[:space:]')
           if [ -z "$STRIPPED" ]; then
             echo "::error::PR description is required. Please describe what this PR does and why."
             exit 1
