@@ -1,3 +1,5 @@
+import { AuthError } from "../lib/errorMapper";
+
 const CLIENT_ID = "app_EMoamEEZ73f0CkXaXp7hrann";
 const JWT_CLAIM_PATH = "https://api.openai.com/auth";
 
@@ -50,7 +52,7 @@ export async function getCodexCredentials(): Promise<CodexCredentials> {
 
   if (!response.ok) {
     const text = await response.text().catch(() => "");
-    throw new Error(`Codex token refresh failed: ${response.status} ${text}`);
+    throw new AuthError(`Token refresh failed: ${response.status} ${text}`);
   }
 
   const payload = await response.json() as {

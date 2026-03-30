@@ -1044,6 +1044,247 @@ collection:
             store: true
           rebuildPath: true
 
+  # ─── Errors ───────────────────────────────────────────────────
+  - name: Errors
+    meta:
+      id: fld_errors_reference
+      created: 1774903769000
+      modified: 1774903769000
+      sortKey: -1774903769000
+      description: >-
+        Reference for all structured error responses returned by the aggregator.
+        Every error follows the shape: { "error": { "message": "...", "type": "...", "code": "..." } }.
+        HTTP status code reflects the error category.
+    children:
+      - url: "{{ _.base_url }}/v1/chat/completions"
+        name: "401 — authentication_error / token_expired"
+        meta:
+          id: req_err_token_expired
+          created: 1774903769001
+          modified: 1774903769001
+          isPrivate: false
+          sortKey: -1774903769001
+          description: >-
+            Returned when the provider OAuth token is expired and the refresh attempt failed
+            (e.g. invalid_grant, refresh token revoked or missing).
+
+            HTTP 401
+
+            {
+              "error": {
+                "message": "Token refresh failed: 400 {\"error\": \"invalid_grant\", ...}",
+                "type": "authentication_error",
+                "code": "token_expired"
+              }
+            }
+
+            Fix: re-run `npm run auth:claude` or `npm run auth:codex` to obtain fresh tokens.
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "model": "claude-sonnet-4-6",
+              "messages": [{ "role": "user", "content": "hello" }],
+              "max_tokens": 10
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: Authorization
+            value: Bearer {{ _.api_key }}
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+
+      - url: "{{ _.base_url }}/v1/chat/completions"
+        name: "401 — authentication_error / invalid_token"
+        meta:
+          id: req_err_invalid_token
+          created: 1774903769002
+          modified: 1774903769002
+          isPrivate: false
+          sortKey: -1774903769002
+          description: >-
+            Returned when the upstream provider rejects the access token with a 401.
+            Typically means the token was revoked or is malformed.
+
+            HTTP 401
+
+            {
+              "error": {
+                "message": "...",
+                "type": "authentication_error",
+                "code": "invalid_token"
+              }
+            }
+
+            Fix: re-authenticate via the auth endpoints or CLI scripts.
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "model": "claude-sonnet-4-6",
+              "messages": [{ "role": "user", "content": "hello" }],
+              "max_tokens": 10
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: Authorization
+            value: Bearer {{ _.api_key }}
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+
+      - url: "{{ _.base_url }}/v1/chat/completions"
+        name: "403 — permission_error / access_denied"
+        meta:
+          id: req_err_access_denied
+          created: 1774903769003
+          modified: 1774903769003
+          isPrivate: false
+          sortKey: -1774903769003
+          description: >-
+            Returned when the upstream provider returns 403.
+            The authenticated account does not have access to the requested model or resource.
+
+            HTTP 403
+
+            {
+              "error": {
+                "message": "...",
+                "type": "permission_error",
+                "code": "access_denied"
+              }
+            }
+
+            Fix: verify the account has access to the requested model.
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "model": "claude-sonnet-4-6",
+              "messages": [{ "role": "user", "content": "hello" }],
+              "max_tokens": 10
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: Authorization
+            value: Bearer {{ _.api_key }}
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+
+      - url: "{{ _.base_url }}/v1/chat/completions"
+        name: "429 — rate_limit_error / rate_limited"
+        meta:
+          id: req_err_rate_limited
+          created: 1774903769004
+          modified: 1774903769004
+          isPrivate: false
+          sortKey: -1774903769004
+          description: >-
+            Returned when the upstream provider returns 429 (too many requests).
+
+            HTTP 429
+
+            {
+              "error": {
+                "message": "...",
+                "type": "rate_limit_error",
+                "code": "rate_limited"
+              }
+            }
+
+            Fix: reduce request frequency or wait before retrying.
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "model": "claude-sonnet-4-6",
+              "messages": [{ "role": "user", "content": "hello" }],
+              "max_tokens": 10
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: Authorization
+            value: Bearer {{ _.api_key }}
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+
+      - url: "{{ _.base_url }}/v1/chat/completions"
+        name: "502 — upstream_error / provider_error"
+        meta:
+          id: req_err_provider_error
+          created: 1774903769005
+          modified: 1774903769005
+          isPrivate: false
+          sortKey: -1774903769005
+          description: >-
+            Catch-all for any upstream provider failure not covered by the specific
+            error codes above (e.g. 5xx from provider, network timeout, malformed response).
+
+            HTTP 502
+
+            {
+              "error": {
+                "message": "...",
+                "type": "upstream_error",
+                "code": "provider_error"
+              }
+            }
+
+            Fix: check provider status pages or retry after a short delay.
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "model": "claude-sonnet-4-6",
+              "messages": [{ "role": "user", "content": "hello" }],
+              "max_tokens": 10
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: Authorization
+            value: Bearer {{ _.api_key }}
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+
 cookieJar:
   name: Default Jar
   meta:
