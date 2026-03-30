@@ -1,4 +1,5 @@
 import { refreshClaudeToken, isTokenExpired } from "../lib/claudeOAuth";
+import { AuthError } from "../lib/errorMapper";
 
 interface ClaudeCredentials {
   accessToken: string;
@@ -16,7 +17,13 @@ let store: ClaudeCredentials = {
 export async function getClaudeCredentials(): Promise<ClaudeCredentials> {
   if (!isTokenExpired(store.expiresAt)) return store;
 
-  const refreshed = await refreshClaudeToken(store.refreshToken);
+  let refreshed: ClaudeCredentials;
+  try {
+    refreshed = await refreshClaudeToken(store.refreshToken);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    throw new AuthError(`Token refresh failed: ${message}`);
+  }
   store = { ...refreshed };
   console.log(`[claude] token refreshed, expires at ${new Date(store.expiresAt).toISOString()}`);
   return store;
