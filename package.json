@@ -1,0 +1,27 @@
+{
+  "name": "node-maximus-agregator",
+  "version": "1.0.0",
+  "description": "OpenAI-compatible REST API with fake responses",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "auth:codex": "ts-node src/scripts/auth.ts",
+    "auth:claude": "ts-node src/scripts/authClaude.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.79.0",
+    "@xenova/transformers": "^2.17.2",
+    "dotenv": "^17.3.1",
+    "express": "^4.18.2",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.10.0",
+    "@types/uuid": "^9.0.7",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.3.2"
+  }
+}

@@ -1,0 +1,1062 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: node-maximus-agregator
+meta:
+  id: wrk_scratchpad
+  created: 1773842331516
+  modified: 1773842331516
+  description: OpenAI-compatible API aggregator
+collection:
+
+  # ─── Auth ─────────────────────────────────────────────────────
+  - name: Auth
+    meta:
+      id: fld_auth_codex
+      created: 1773842519087
+      modified: 1773842519087
+      sortKey: -1773842519087
+      description: OAuth PKCE flow endpoints for Codex and Claude Code
+    children:
+      - url: "{{ _.base_url }}/v1/auth/codex"
+        name: Get PKCE Authorization URL
+        meta:
+          id: req_auth_get_url
+          created: 1773842519087
+          modified: 1773842519087
+          isPrivate: false
+          sortKey: -1773842519087
+          description: >-
+            Returns { url, verifier, state }.
+            Open the url in a browser to authenticate.
+            Save verifier — it is required for the exchange step.
+        method: GET
+        headers:
+          - name: Authorization
+            value: Bearer {{ _.api_key }}
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/v1/auth/codex/exchange"
+        name: Exchange Code for Tokens
+        meta:
+          id: req_auth_exchange_code
+          created: 1773842519087
+          modified: 1773842519087
+          isPrivate: false
+          sortKey: -1773842519088
+          description: >-
+            Accepts raw code + verifier.
+            Returns { accessToken, refreshToken, expiresAt, accountId }.
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "code": "<paste-authorization-code-here>",
+              "verifier": "<paste-verifier-from-previous-step>"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: Authorization
+            value: Bearer {{ _.api_key }}
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/v1/auth/codex/exchange"
+        name: Exchange Callback URL for Tokens
+        meta:
+          id: req_auth_exchange_url
+          created: 1773842519087
+          modified: 1773842519087
+          isPrivate: false
+          sortKey: -1773842519089
+          description: >-
+            Accepts full callback url + verifier. Code is stripped automatically.
+            Returns { accessToken, refreshToken, expiresAt, accountId }.
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "url": "http://localhost:1455/auth/callback?code=<code>&state=<state>",
+              "verifier": "<paste-verifier-from-previous-step>"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: Authorization
+            value: Bearer {{ _.api_key }}
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/v1/auth/claude"
+        name: "[Claude] Get PKCE Authorization URL"
+        meta:
+          id: req_auth_claude_get_url
+          created: 1773842519087
+          modified: 1773842519087
+          isPrivate: false
+          sortKey: -1773842519090
+          description: >-
+            Returns { url, verifier }.
+            Open the url in a browser — Anthropic redirects to console.anthropic.com
+            and displays the authorization code there.
+            Save verifier — required for the exchange step.
+        method: GET
+        headers:
+          - name: Authorization
+            value: Bearer {{ _.api_key }}
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/v1/auth/claude/exchange"
+        name: "[Claude] Exchange Code for Tokens"
+        meta:
+          id: req_auth_claude_exchange
+          created: 1773842519087
+          modified: 1773842519087
+          isPrivate: false
+          sortKey: -1773842519091
+          description: >-
+            Accepts code + verifier. "#state" suffix is stripped automatically.
+            Returns { accessToken, refreshToken, expiresAt }.
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "code": "<paste-code-from-console.anthropic.com>",
+              "verifier": "<paste-verifier-from-previous-step>"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: Authorization
+            value: Bearer {{ _.api_key }}
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+
+  # ─── Models ───────────────────────────────────────────────────
+  - name: Models
+    meta:
+      id: fld_45b8451c6c754b69a2a06bb0b8c01768
+      created: 1773842519088
+      modified: 1773842519088
+      sortKey: -1773842519088
+      description: ""
+    children:
+      - url: "{{ _.base_url }}/v1/models"
+        name: List Models
+        meta:
+          id: req_266deb9b40ab4216b51531f9cc8713a8
+          created: 1773842519091
+          modified: 1773842519091
+          isPrivate: false
+          description: ""
+          sortKey: -1773842519091
+        method: GET
+        headers:
+          - name: Authorization
+            value: Bearer {{ _.api_key }}
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/v1/models/gpt-5.2-codex"
+        name: "[Codex] Get Model"
+        meta:
+          id: req_18a5c3ef076f4aa991ecb29ea0d3d61e
+          created: 1773842519092
+          modified: 1773843658885
+          isPrivate: false
+          description: Returns full spec including context_window and max_input_tokens.
+          sortKey: -1773842519092
+        method: GET
+        headers:
+          - name: Authorization
+            value: Bearer {{ _.api_key }}
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/v1/models/claude-sonnet-4-6"
+        name: "[Claude] Get Model"
+        meta:
+          id: req_get_claude_model
+          created: 1773842519092
+          modified: 1773842519092
+          isPrivate: false
+          description: Returns full spec including context_window (200k) and max_input_tokens (200k).
+          sortKey: -1773842519093
+        method: GET
+        headers:
+          - name: Authorization
+            value: Bearer {{ _.api_key }}
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+
+  # ─── Chat ─────────────────────────────────────────────────────
+  - name: Chat
+    meta:
+      id: fld_d29de334858141a793a7c904fc7b68e6
+      created: 1773842519088
+      modified: 1773842519088
+      sortKey: -1773842519088
+      description: ""
+    children:
+      - url: "{{ _.base_url }}/v1/chat/completions"
+        name: Chat Completions
+        meta:
+          id: req_ebc85fe4dd884e7285d7a2dc75a78f14
+          created: 1773842519092
+          modified: 1773844407154
+          isPrivate: false
+          description: ""
+          sortKey: -1773842519092
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "model": "gpt-5.1-codex",
+              "messages": [
+                { "role": "system", "content": "You are a helpful assistant." },
+                { "role": "user", "content": "Hello! What is a quicksand? Answer me using only plain text in one paragraph." }
+              ],
+              "max_tokens": 256
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: Authorization
+            value: Bearer {{ _.api_key }}
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/v1/chat/completions"
+        name: Chat Completions (Streaming)
+        meta:
+          id: req_0cc09195de1a42e585377ad4c2bea3c7
+          created: 1773842519093
+          modified: 1773846237621
+          isPrivate: false
+          description: ""
+          sortKey: -1773842519093
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "model": "gpt-5.1-codex",
+              "messages": [
+                { "role": "system", "content": "You are a helpful assistant." },
+                { "role": "user", "content": "Hello! What is a quicksand? Answer me using only plain text in one paragraph." }
+              ],
+              "stream": true,
+              "max_tokens": 256
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: Authorization
+            value: Bearer {{ _.api_key }}
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/v1/chat/completions"
+        name: Chat Completions (Streaming + Usage)
+        meta:
+          id: req_chat_stream_usage
+          created: 1773842519093
+          modified: 1773842519093
+          isPrivate: false
+          description: >-
+            Emits an extra chunk before [DONE] with prompt_tokens,
+            completion_tokens and total_tokens.
+          sortKey: -1773842519094
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "model": "gpt-5.1-codex",
+              "messages": [
+                { "role": "system", "content": "You are a helpful assistant." },
+                { "role": "user", "content": "Hello! What is a quicksand? Answer me using only plain text in one paragraph." }
+              ],
+              "stream": true,
+              "stream_options": { "include_usage": true },
+              "max_tokens": 256
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: Authorization
+            value: Bearer {{ _.api_key }}
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/v1/chat/completions"
+        name: Chat Completions (No System Prompt)
+        meta:
+          id: req_chat_no_system
+          created: 1773842519093
+          modified: 1773842519093
+          isPrivate: false
+          description: Falls back to "You are a helpful assistant." as instructions.
+          sortKey: -1773842519095
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "model": "gpt-5.1-codex",
+              "messages": [
+                { "role": "user", "content": "Explain recursion simply." }
+              ],
+              "max_tokens": 256
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: Authorization
+            value: Bearer {{ _.api_key }}
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/v1/chat/completions"
+        name: "[Claude] Chat Completions"
+        meta:
+          id: req_claude_chat
+          created: 1773842519096
+          modified: 1773842519096
+          isPrivate: false
+          description: Routes to Claude provider via owned_by lookup. System message extracted automatically.
+          sortKey: -1773842519096
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "model": "claude-sonnet-4-6",
+              "messages": [
+                { "role": "system", "content": "You are a helpful assistant." },
+                { "role": "user", "content": "Hello! What is a quicksand? Answer me using only plain text in one paragraph." }
+              ],
+              "max_tokens": 256
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: Authorization
+            value: Bearer {{ _.api_key }}
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/v1/chat/completions"
+        name: "[Claude] Chat Completions (Streaming)"
+        meta:
+          id: req_claude_chat_stream
+          created: 1773842519097
+          modified: 1773842519097
+          isPrivate: false
+          description: Streams chat.completion.chunk SSE events from Claude via Anthropic SDK.
+          sortKey: -1773842519097
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "model": "claude-sonnet-4-6",
+              "messages": [
+                { "role": "system", "content": "You are a helpful assistant." },
+                { "role": "user", "content": "Hello! What is a quicksand? Answer me using only plain text in one paragraph." }
+              ],
+              "stream": true,
+              "max_tokens": 256
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: Authorization
+            value: Bearer {{ _.api_key }}
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/v1/chat/completions"
+        name: "[Claude] Chat Completions (Streaming + Usage)"
+        meta:
+          id: req_claude_chat_stream_usage
+          created: 1773842519098
+          modified: 1773842519098
+          isPrivate: false
+          description: Emits an extra usage chunk before [DONE] with input/output token counts.
+          sortKey: -1773842519098
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "model": "claude-sonnet-4-6",
+              "messages": [
+                { "role": "system", "content": "You are a helpful assistant." },
+                { "role": "user", "content": "Hello! What is a quicksand? Answer me using only plain text in one paragraph." }
+              ],
+              "stream": true,
+              "stream_options": { "include_usage": true },
+              "max_tokens": 256
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: Authorization
+            value: Bearer {{ _.api_key }}
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+
+      - url: "{{ _.base_url }}/v1/chat/completions"
+        name: "[Codex] Chat Completions (Tool Calls)"
+        meta:
+          id: req_codex_chat_tools
+          created: 1773842519103
+          modified: 1773842519103
+          isPrivate: false
+          description: >-
+            Sends tools to Codex (Responses API format). Response includes tool_calls when model uses one.
+            Tool IDs are fc_ prefixed. Feed results back as "tool" role messages to continue.
+          sortKey: -1773842519103
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "model": "gpt-5.1-codex",
+              "messages": [
+                { "role": "user", "content": "What is the weather in San Francisco?" }
+              ],
+              "tools": [
+                {
+                  "type": "function",
+                  "function": {
+                    "name": "get_weather",
+                    "description": "Get the current weather for a location.",
+                    "parameters": {
+                      "type": "object",
+                      "properties": {
+                        "location": { "type": "string", "description": "City name" }
+                      },
+                      "required": ["location"]
+                    }
+                  }
+                }
+              ],
+              "tool_choice": "auto",
+              "max_tokens": 256
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: Authorization
+            value: Bearer {{ _.api_key }}
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/v1/chat/completions"
+        name: "[Codex] Chat Completions (Tool Result)"
+        meta:
+          id: req_codex_chat_tool_result
+          created: 1773842519104
+          modified: 1773842519104
+          isPrivate: false
+          description: >-
+            Second turn — sends the assistant tool_calls + tool result back to Codex.
+            Use the exact id value from tool_calls[0].id in the previous response (already fc_ prefixed).
+            No ID transformation needed — echo it as-is into tool_call_id.
+          sortKey: -1773842519104
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "model": "gpt-5.1-codex",
+              "messages": [
+                { "role": "user", "content": "What is the weather in San Francisco?" },
+                {
+                  "role": "assistant",
+                  "content": null,
+                  "tool_calls": [
+                    {
+                      "id": "<fc_xxxx-from-previous-response>",
+                      "type": "function",
+                      "function": {
+                        "name": "get_weather",
+                        "arguments": "{\"location\": \"San Francisco\"}"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "role": "tool",
+                  "tool_call_id": "<fc_xxxx-from-previous-response>",
+                  "content": "72°F and sunny"
+                }
+              ],
+              "tools": [
+                {
+                  "type": "function",
+                  "function": {
+                    "name": "get_weather",
+                    "description": "Get the current weather for a location.",
+                    "parameters": {
+                      "type": "object",
+                      "properties": {
+                        "location": { "type": "string", "description": "City name" }
+                      },
+                      "required": ["location"]
+                    }
+                  }
+                }
+              ],
+              "max_tokens": 256
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: Authorization
+            value: Bearer {{ _.api_key }}
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/v1/chat/completions"
+        name: "[Claude] Chat Completions (Tool Calls)"
+        meta:
+          id: req_claude_chat_tools
+          created: 1773842519101
+          modified: 1773842519101
+          isPrivate: false
+          description: >-
+            Sends tools to Claude. Response includes tool_calls when the model decides to use one.
+            Feed the tool_calls back as a "tool" role message to continue the conversation.
+          sortKey: -1773842519101
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "model": "claude-sonnet-4-6",
+              "messages": [
+                { "role": "user", "content": "What is the weather in San Francisco?" }
+              ],
+              "tools": [
+                {
+                  "type": "function",
+                  "function": {
+                    "name": "get_weather",
+                    "description": "Get the current weather for a location.",
+                    "parameters": {
+                      "type": "object",
+                      "properties": {
+                        "location": { "type": "string", "description": "City name" }
+                      },
+                      "required": ["location"]
+                    }
+                  }
+                }
+              ],
+              "tool_choice": "auto",
+              "max_tokens": 256
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: Authorization
+            value: Bearer {{ _.api_key }}
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/v1/chat/completions"
+        name: "[Claude] Chat Completions (Tool Result)"
+        meta:
+          id: req_claude_chat_tool_result
+          created: 1773842519102
+          modified: 1773842519102
+          isPrivate: false
+          description: >-
+            Second turn — sends tool_calls from assistant + tool result back to get the final answer.
+            Replace tool_call_id and arguments with values from the previous response.
+          sortKey: -1773842519102
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "model": "claude-sonnet-4-6",
+              "messages": [
+                { "role": "user", "content": "What is the weather in San Francisco?" },
+                {
+                  "role": "assistant",
+                  "content": null,
+                  "tool_calls": [
+                    {
+                      "id": "<tool-call-id-from-previous-response>",
+                      "type": "function",
+                      "function": {
+                        "name": "get_weather",
+                        "arguments": "{\"location\": \"San Francisco\"}"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "role": "tool",
+                  "tool_call_id": "<tool-call-id-from-previous-response>",
+                  "content": "72°F and sunny"
+                }
+              ],
+              "tools": [
+                {
+                  "type": "function",
+                  "function": {
+                    "name": "get_weather",
+                    "description": "Get the current weather for a location.",
+                    "parameters": {
+                      "type": "object",
+                      "properties": {
+                        "location": { "type": "string", "description": "City name" }
+                      },
+                      "required": ["location"]
+                    }
+                  }
+                }
+              ],
+              "max_tokens": 256
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: Authorization
+            value: Bearer {{ _.api_key }}
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+
+  # ─── Completions ──────────────────────────────────────────────
+  - name: Completions
+    meta:
+      id: fld_450580b4ef2e412ab75083eff9ffd922
+      created: 1773842519090
+      modified: 1773842519090
+      sortKey: -1773842519090
+      description: ""
+    children:
+      - url: "{{ _.base_url }}/v1/completions"
+        name: Text Completions
+        meta:
+          id: req_20577e8201c246399890b79f310fdb51
+          created: 1773842519093
+          modified: 1773844087062
+          isPrivate: false
+          description: ""
+          sortKey: -1773842519093
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "model": "gpt-5.1-codex",
+              "prompt": "What is a quicksand? Explain me using only plain text paragraphs.",
+              "max_tokens": 100
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: Authorization
+            value: Bearer {{ _.api_key }}
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/v1/completions"
+        name: Text Completions (Streaming)
+        meta:
+          id: req_a57fc67cee0245a887d7e0cd6a276e27
+          created: 1773842519093
+          modified: 1773844076556
+          isPrivate: false
+          description: ""
+          sortKey: -1773842519094
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "model": "gpt-5.1-codex",
+              "prompt": "What is a quicksand? Explain me using only plain text paragraphs.",
+              "stream": true,
+              "max_tokens": 100
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: Authorization
+            value: Bearer {{ _.api_key }}
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/v1/completions"
+        name: Text Completions (Streaming + Usage)
+        meta:
+          id: req_completions_stream_usage
+          created: 1773842519093
+          modified: 1773842519093
+          isPrivate: false
+          description: >-
+            Emits an extra chunk before [DONE] with prompt_tokens,
+            completion_tokens and total_tokens.
+          sortKey: -1773842519095
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "model": "gpt-5.1-codex",
+              "prompt": "What is a quicksand? Explain me using only plain text paragraphs.",
+              "stream": true,
+              "stream_options": { "include_usage": true },
+              "max_tokens": 100
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: Authorization
+            value: Bearer {{ _.api_key }}
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/v1/completions"
+        name: Text Completions (Array Prompt)
+        meta:
+          id: req_completions_array
+          created: 1773842519093
+          modified: 1773842519093
+          isPrivate: false
+          description: Array prompts are joined with a space before being sent.
+          sortKey: -1773842519096
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "model": "gpt-5.1-codex",
+              "prompt": ["What is", "a quicksand?"],
+              "max_tokens": 100
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: Authorization
+            value: Bearer {{ _.api_key }}
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+
+      - url: "{{ _.base_url }}/v1/completions"
+        name: "[Claude] Text Completions"
+        meta:
+          id: req_claude_completions
+          created: 1773842519099
+          modified: 1773842519099
+          isPrivate: false
+          description: Prompt wrapped as a user message and sent to Claude messages API.
+          sortKey: -1773842519099
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "model": "claude-sonnet-4-6",
+              "prompt": "What is a quicksand? Explain me using only plain text paragraphs.",
+              "max_tokens": 256
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: Authorization
+            value: Bearer {{ _.api_key }}
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/v1/completions"
+        name: "[Claude] Text Completions (Streaming)"
+        meta:
+          id: req_claude_completions_stream
+          created: 1773842519100
+          modified: 1773842519100
+          isPrivate: false
+          description: Streams text_completion SSE events from Claude.
+          sortKey: -1773842519100
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "model": "claude-sonnet-4-6",
+              "prompt": "What is a quicksand? Explain me using only plain text paragraphs.",
+              "stream": true,
+              "max_tokens": 256
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: Authorization
+            value: Bearer {{ _.api_key }}
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+
+  # ─── Embeddings ───────────────────────────────────────────────
+  - name: Embeddings
+    meta:
+      id: fld_1b2adf6319cd4fa7b60f58949d1d986e
+      created: 1773842519090
+      modified: 1773842519090
+      sortKey: -1773842519090
+      description: ""
+    children:
+      - url: "{{ _.base_url }}/v1/embeddings"
+        name: Create Embedding (Single)
+        meta:
+          id: req_b323c396c6744bcfbfe21a34739df66a
+          created: 1773842519094
+          modified: 1773842519094
+          isPrivate: false
+          description: >-
+            Model parameter is ignored — always uses @xenova/transformers locally.
+            Returns 384-dim vectors (Xenova/all-MiniLM-L6-v2).
+          sortKey: -1773842519094
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "model": "text-embedding-ada-002",
+              "input": "The food was delicious and the waiter was very attentive."
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: Authorization
+            value: Bearer {{ _.api_key }}
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/v1/embeddings"
+        name: Create Embeddings (Batch)
+        meta:
+          id: req_60046f1ccf2e4ac9a1d6ecc643e87063
+          created: 1773842519094
+          modified: 1773842519094
+          isPrivate: false
+          description: ""
+          sortKey: -1773842519095
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "model": "text-embedding-ada-002",
+              "input": [
+                "Hello world",
+                "How are you?",
+                "The weather is nice today."
+              ]
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: Authorization
+            value: Bearer {{ _.api_key }}
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+
+  # ─── Misc ─────────────────────────────────────────────────────
+  - name: Misc
+    meta:
+      id: fld_7d6c316f12b24c49ad6fae0408b5e471
+      created: 1773842519091
+      modified: 1773842519091
+      sortKey: -1773842519091
+      description: ""
+    children:
+      - url: "{{ _.base_url }}/health"
+        name: Health Check
+        meta:
+          id: req_9472ae6bfe014dc3b16cf5954a215342
+          created: 1773842519094
+          modified: 1773842588326
+          isPrivate: false
+          description: ""
+          sortKey: -1773842519094
+        method: GET
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_99d30891da4bdcebc63947a8fc17f076de878684
+    created: 1773842349179
+    modified: 1773842349179
+environments:
+  name: Base Environment
+  meta:
+    id: env_99d30891da4bdcebc63947a8fc17f076de878684
+    created: 1773842349178
+    modified: 1773842666535
+    isPrivate: false
+  data:
+    base_url: http://localhost:3000
+    api_key: fake:apiKey
