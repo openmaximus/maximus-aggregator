@@ -1,0 +1,44 @@
+name: PR Validation
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+jobs:
+  validate-pr:
+    name: Validate title and description
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR title
+        if: github.event.pull_request.title == '' || github.event.pull_request.title == null
+        run: |
+          echo "::error::PR title is required."
+          exit 1
+
+      - name: Check PR title length
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          LENGTH=${#PR_TITLE}
+          if [ "$LENGTH" -lt 10 ]; then
+            echo "::error::PR title is too short (minimum 10 characters). Got: \"$PR_TITLE\""
+            exit 1
+          fi
+
+      - name: Check PR description
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          STRIPPED=$(echo "$PR_BODY" | tr -d '[:space:]')
+          if [ -z "$STRIPPED" ]; then
+            echo "::error::PR description is required. Please describe what this PR does and why."
+            exit 1
+          fi
+          LENGTH=${#STRIPPED}
+          if [ "$LENGTH" -lt 20 ]; then
+            echo "::error::PR description is too short. Please provide a meaningful description."
+            exit 1
+          fi
+
+      - name: PR validation passed
+        run: echo "PR title and description are valid."
