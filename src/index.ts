@@ -20,9 +20,31 @@ import { allModels } from "./data/modelRegistry";
 const app = express();
 const PORT = process.env.PORT ?? 3000;
 const HOST = process.env.HOST ?? "localhost";
+const LOCALHOST_ORIGIN_RE = /^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?$/;
 
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
+
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const origin = req.headers.origin;
+
+  if (origin && LOCALHOST_ORIGIN_RE.test(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Vary", "Origin");
+    res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      req.headers["access-control-request-headers"] ?? "Content-Type, Authorization",
+    );
+  }
+
+  if (req.method === "OPTIONS") {
+    res.status(204).end();
+    return;
+  }
+
+  next();
+});
 
 // Request logger
 app.use((req: Request, _res: Response, next: NextFunction) => {

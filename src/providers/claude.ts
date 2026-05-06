@@ -3,7 +3,6 @@ import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import { ChatBody, CompletionsBody, Message, Tool } from "./types";
 import { getClaudeCredentials } from "./claudeCredentials";
-import { mapProviderError } from "../lib/errorMapper";
 
 function generateChatId(): string {
   return `chatcmpl-${uuidv4().replace(/-/g, "").slice(0, 29)}`;
@@ -151,14 +150,16 @@ export async function handleClaudeChat(
 
   // Enable adaptive thinking for Sonnet and Opus — transparent to clients.
   const thinkingParam: Anthropic.ThinkingConfigParam | undefined =
-    /sonnet|opus/i.test(model) ? { type: "adaptive" } : undefined;
+    /sonnet|opus/i.test(model)
+      ? { type: "adaptive" }
+      : undefined;
 
   let client: Anthropic;
   try {
     client = await makeClient();
   } catch (err) {
-    const { status, type, code, message } = mapProviderError(err);
-    res.status(status).json({ error: { message, type, code } });
+    const message = err instanceof Error ? err.message : "Credentials error";
+    res.status(502).json({ error: { message, type: "upstream_error", code: "claude_error" } });
     return;
   }
 
@@ -250,8 +251,8 @@ export async function handleClaudeChat(
       res.write("data: [DONE]\n\n");
       res.end();
     } catch (err) {
-      const { type, code, message } = mapProviderError(err);
-      res.write(`data: ${JSON.stringify({ error: { message, type, code } })}\n\n`);
+      const message = err instanceof Error ? err.message : "Stream error";
+      res.write(`data: ${JSON.stringify({ error: { message, type: "upstream_error" } })}\n\n`);
       res.end();
     }
     return;
@@ -304,8 +305,8 @@ export async function handleClaudeChat(
       usage,
     });
   } catch (err) {
-    const { status, type, code, message } = mapProviderError(err);
-    res.status(status).json({ error: { message, type, code } });
+    const message = err instanceof Error ? err.message : "Unknown error";
+    res.status(502).json({ error: { message, type: "upstream_error", code: "claude_error" } });
   }
 }
 
@@ -323,8 +324,8 @@ export async function handleClaudeCompletions(
   try {
     client = await makeClient();
   } catch (err) {
-    const { status, type, code, message } = mapProviderError(err);
-    res.status(status).json({ error: { message, type, code } });
+    const message = err instanceof Error ? err.message : "Credentials error";
+    res.status(502).json({ error: { message, type: "upstream_error", code: "claude_error" } });
     return;
   }
 
@@ -374,8 +375,8 @@ export async function handleClaudeCompletions(
       res.write("data: [DONE]\n\n");
       res.end();
     } catch (err) {
-      const { type, code, message } = mapProviderError(err);
-      res.write(`data: ${JSON.stringify({ error: { message, type, code } })}\n\n`);
+      const message = err instanceof Error ? err.message : "Stream error";
+      res.write(`data: ${JSON.stringify({ error: { message, type: "upstream_error" } })}\n\n`);
       res.end();
     }
     return;
@@ -402,7 +403,7 @@ export async function handleClaudeCompletions(
       usage,
     });
   } catch (err) {
-    const { status, type, code, message } = mapProviderError(err);
-    res.status(status).json({ error: { message, type, code } });
+    const message = err instanceof Error ? err.message : "Unknown error";
+    res.status(502).json({ error: { message, type: "upstream_error", code: "claude_error" } });
   }
 }
