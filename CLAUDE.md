@@ -10,7 +10,7 @@ OpenAI-compatible REST API aggregator written in TypeScript + Express. Routes re
 
 ## Structure
 
-- `src/index.ts` — entry point, Express app setup, route wiring, dotenv loading, xenova pipeline warm-up at startup
+- `src/index.ts` — entry point, Express app setup, localhost/127.0.0.1 CORS for any port, route wiring, dotenv loading, xenova pipeline warm-up at startup
 - `src/data/modelRegistry.ts` — `ModelObject` type and `allModels` array combining all provider model lists
 - `src/data/codexModels.ts` — hardcoded OpenAI Codex models (`owned_by: "codex"`)
 - `src/data/customModels.ts` — loads `.models/*.md` at startup; parses YAML frontmatter (`name`, `base`); registers entries in `customModelMap`; exposes `loadCustomModels()` and `getCustomModel()`

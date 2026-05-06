@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import { ChatBody, CompletionsBody, Message, Tool } from "./types";
 import { getCodexCredentials } from "./codexCredentials";
-import { mapProviderError } from "../lib/errorMapper";
 
 const FALLBACK_INSTRUCTIONS = "You are a helpful assistant.";
 
@@ -173,8 +172,8 @@ export async function handleCodexCompletions(req: Request, res: Response, body: 
   try {
     codexResponse = await callCodexAPI(model, FALLBACK_INSTRUCTIONS, input);
   } catch (err) {
-    const { status, type, code, message } = mapProviderError(err);
-    res.status(status).json({ error: { message, type, code } });
+    const message = err instanceof Error ? err.message : "Unknown error";
+    res.status(502).json({ error: { message, type: "upstream_error", code: "codex_error" } });
     return;
   }
 
@@ -207,15 +206,14 @@ export async function handleCodexCompletions(req: Request, res: Response, body: 
           return;
         } else if (event.type === "error") {
           const msg = (event.message as string) || (event.code as string) || "stream error";
-          const { type, code, message } = mapProviderError(new Error(msg));
-          res.write(`data: ${JSON.stringify({ error: { message, type, code } })}\n\n`);
+          res.write(`data: ${JSON.stringify({ error: { message: msg, type: "upstream_error" } })}\n\n`);
           res.end();
           return;
         }
       }
     } catch (err) {
-      const { type, code, message } = mapProviderError(err);
-      res.write(`data: ${JSON.stringify({ error: { message, type, code } })}\n\n`);
+      const message = err instanceof Error ? err.message : "Stream error";
+      res.write(`data: ${JSON.stringify({ error: { message, type: "upstream_error" } })}\n\n`);
       res.end();
     }
     return;
@@ -236,8 +234,8 @@ export async function handleCodexCompletions(req: Request, res: Response, body: 
       }
     }
   } catch (err) {
-    const { status, type, code, message } = mapProviderError(err);
-    res.status(status).json({ error: { message, type, code } });
+    const message = err instanceof Error ? err.message : "Stream error";
+    res.status(502).json({ error: { message, type: "upstream_error", code: "codex_error" } });
     return;
   }
 
@@ -265,8 +263,8 @@ export async function handleCodexChat(req: Request, res: Response, body: ChatBod
   try {
     codexResponse = await callCodexAPI(model, instructions, codexInput, codexTools);
   } catch (err) {
-    const { status, type, code, message } = mapProviderError(err);
-    res.status(status).json({ error: { message, type, code } });
+    const message = err instanceof Error ? err.message : "Unknown error";
+    res.status(502).json({ error: { message, type: "upstream_error", code: "codex_error" } });
     return;
   }
 
@@ -344,15 +342,14 @@ export async function handleCodexChat(req: Request, res: Response, body: ChatBod
           return;
         } else if (event.type === "error") {
           const msg = (event.message as string) || (event.code as string) || "stream error";
-          const { type, code, message } = mapProviderError(new Error(msg));
-          res.write(`data: ${JSON.stringify({ error: { message, type, code } })}\n\n`);
+          res.write(`data: ${JSON.stringify({ error: { message: msg, type: "upstream_error" } })}\n\n`);
           res.end();
           return;
         }
       }
     } catch (err) {
-      const { type, code, message } = mapProviderError(err);
-      res.write(`data: ${JSON.stringify({ error: { message, type, code } })}\n\n`);
+      const message = err instanceof Error ? err.message : "Stream error";
+      res.write(`data: ${JSON.stringify({ error: { message, type: "upstream_error" } })}\n\n`);
       res.end();
     }
     return;
@@ -393,8 +390,8 @@ export async function handleCodexChat(req: Request, res: Response, body: ChatBod
       }
     }
   } catch (err) {
-    const { status, type, code, message } = mapProviderError(err);
-    res.status(status).json({ error: { message, type, code } });
+    const message = err instanceof Error ? err.message : "Stream error";
+    res.status(502).json({ error: { message, type: "upstream_error", code: "codex_error" } });
     return;
   }
 
